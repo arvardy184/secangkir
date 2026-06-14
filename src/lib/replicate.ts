@@ -1,12 +1,6 @@
 import "server-only";
 import type { Warung } from "./types";
 
-// ADR: Why Hugging Face over Pollinations/Replicate
-// Pollinations rate-limits Vercel IPs (x402 queue full).
-// Replicate requires paid credit.
-// Hugging Face Inference API is free with an account token,
-// supports FLUX.1-schnell, returns binary image data directly.
-
 export class ReplicateError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -16,42 +10,25 @@ export class ReplicateError extends Error {
   }
 }
 
-export async function generatePosterWithReplicate(warung: Warung): Promise<string> {
-  const apiToken = process.env.HF_API_TOKEN;
-  if (!apiToken) {
-    throw new ReplicateError("HF_API_TOKEN is not configured", 500);
-  }
+export function generatePosterWithReplicate(warung: Warung): string {
+  const vibe = warung.vibe_tags?.slice(0, 3).join(", ") ?? "cozy, local";
+  const name = warung.nama.replace(/[^a-zA-Z0-9 ]/g, "").trim();
+  const tagline = warung.ai_tagline
+    ? warung.ai_tagline.replace(/[^a-zA-Z0-9 .,!]/g, "").trim()
+    : "";
 
-  const vibe = warung.vibe_tags?.join(", ") ?? "cozy, local, authentic";
-  const prompt = `Instagram promotional poster for Indonesian local coffee stall called ${warung.nama}. ${warung.ai_tagline ? warung.ai_tagline + "." : ""} Vibe: ${vibe}. Warm natural lighting, realistic editorial food photography, authentic neighborhood coffee atmosphere, coffee cup as main subject, square composition, no text, no logos`;
+  const prompt = [
+    `Indonesian warung kopi coffee shop`,
+    name,
+    tagline,
+    vibe,
+    "warm lighting, coffee cup, cozy atmosphere, food photography",
+  ]
+    .filter(Boolean)
+    .join(", ");
 
-  const res = await fetch(
-    "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: { width: 1024, height: 1024 },
-      }),
-    },
-  );
+  const seed = Math.floor(Math.random() * 999999);
+  const encoded = encodeURIComponent(prompt);
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new ReplicateError(
-      `HuggingFace request failed (${res.status}): ${text.slice(0, 200)}`,
-      res.status,
-    );
-  }
-
-  // Response is binary image — convert to base64 data URL
-  const buffer = await res.arrayBuffer();
-  const base64 = Buffer.from(buffer).toString("base64");
-  const mimeType = res.headers.get("content-type") ?? "image/jpeg";
-
-  return `data:${mimeType};base64,${base64}`;
+  return `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&enhance=false&model=flux`;
 }

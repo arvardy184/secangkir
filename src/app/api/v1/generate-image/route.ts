@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GenerateSchema } from "@/lib/schemas";
-import { ReplicateError, generatePosterWithReplicate } from "@/lib/replicate";
+import { generatePosterWithReplicate } from "@/lib/replicate";
 import { createServerClient } from "@/lib/supabase/server";
 import type { GeneratedImageContent, Warung } from "@/lib/types";
-
-const BUCKET = "warung-assets";
 
 export async function POST(request: NextRequest) {
   const supabase = createServerClient();
@@ -46,55 +44,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Warung not found" }, { status: 404 });
   }
 
-  try {
-    const dataUrl = await generatePosterWithReplicate(warung);
+  // Generate Pollinations URL tanpa fetch — browser yang load gambarnya
+  const imageUrl = generatePosterWithReplicate(warung);
 
-    // Parse base64 data URL → upload to Supabase Storage
-    const [header, base64] = dataUrl.split(",");
-    const mimeType = header.match(/:(.*?);/)?.[1] ?? "image/jpeg";
-    const ext = mimeType.includes("png") ? "png" : "jpg";
-    const bytes = Buffer.from(base64, "base64");
-    const path = `warung/${user.id}/${warung.id}/poster.${ext}`;
+  const payload: GeneratedImageContent = {
+    ai_image_prompt: `Poster Instagram untuk ${warung.nama}`,
+    ai_image_url: imageUrl,
+  };
 
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, bytes, { contentType: mimeType, upsert: true });
+  const { error: updateError } = await supabase
+    .from("warung")
+    .update(payload)
+    .eq("id", warung.id)
+    .eq("owner_id", user.id);
 
-    let imageUrl = dataUrl; // fallback ke data URL kalau upload gagal
-
-    if (!uploadError) {
-      const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(path);
-      imageUrl = publicUrl;
-    }
-
-    const payload: GeneratedImageContent = {
-      ai_image_prompt: `Poster Instagram untuk ${warung.nama}`,
-      ai_image_url: imageUrl,
-    };
-
-    await supabase
-      .from("warung")
-      .update(payload)
-      .eq("id", warung.id)
-      .eq("owner_id", user.id);
-
-    return NextResponse.json({ data: payload }, { status: 200 });
-  } catch (error) {
-    if (error instanceof ReplicateError) {
-      if (error.message.includes("HF_API_TOKEN")) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-      if (error.status === 429) {
-        return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
-      }
-      return NextResponse.json(
-        { error: `Image generation failed: ${error.message}` },
-        { status: error.status >= 500 ? 502 : error.status },
-      );
-    }
-
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("[generate-image]", msg);
-    return NextResponse.json({ error: `Internal server error: ${msg}` }, { status: 500 });
+  if (updateError) {
+    return NextResponse.json(
+      { error: `Failed to save: ${updateError.message}` },
+      { status: 500 },
+    );
   }
+
+  return NextResponse.json({ data: payload }, { status: 200 });
 }
