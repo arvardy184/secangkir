@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { OnboardForm } from "@/components/OnboardForm";
@@ -34,17 +35,15 @@ export default async function OnboardPage() {
     <div className="page-shell">
       <nav
         aria-label="Navigasi onboarding"
-        className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5"
+        className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-kopi-900 text-[11px] font-bold tracking-widest text-white">
-            Sk
-          </span>
+          <Image src="/logo.png" alt="Secangkir logo" width={32} height={32} className="rounded-lg" priority />
           <span className="font-display text-xl font-semibold text-kopi-900">
             Onboarding
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <Link href="/dashboard" aria-label="Kembali ke dashboard owner" className="nav-link">
             Dashboard
           </Link>

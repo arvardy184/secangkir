@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AiContentPanel } from "@/components/AiContentPanel";
@@ -31,17 +32,15 @@ export default async function DashboardPage() {
       {/* Nav */}
       <nav
         aria-label="Dashboard navigation"
-        className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5"
+        className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-kopi-900 text-[11px] font-bold tracking-widest text-white">
-            Sk
-          </span>
+          <Image src="/logo.png" alt="Secangkir logo" width={32} height={32} className="rounded-lg" priority />
           <span className="font-display text-xl font-semibold text-kopi-900">
             Dashboard
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <Link href="/explore" aria-label="Buka halaman explore" className="nav-link">
             Explore
           </Link>
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
           {/* Header */}
           <div className="border-b border-kopi-200 pb-6">
             <p className="label-section">Owner</p>
-            <h1 className="mt-1.5 font-display text-3xl font-semibold text-kopi-900">
+            <h1 className="mt-1.5 break-all font-display text-3xl font-semibold text-kopi-900">
               {user.email}
             </h1>
           </div>

@@ -36,6 +36,8 @@ export type Warung = {
   ai_bio: string | null;
   ai_captions: string[] | null;
   ai_tagline: string | null;
+  ai_image_prompt: string | null;
+  ai_image_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -59,6 +61,11 @@ export type GeneratedContent = {
   ai_bio: string;
   ai_tagline: string;
   ai_captions: string[];
+};
+
+export type GeneratedImageContent = {
+  ai_image_prompt: string;
+  ai_image_url: string;
 };
 
 export type MatchResult = {

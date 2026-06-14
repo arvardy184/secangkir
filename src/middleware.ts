@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ratelimit } from "@/lib/ratelimit";
 import { updateSession } from "@/lib/supabase/middleware";
 
+// Force Node.js runtime — @supabase/ssr uses process.version which is not available in Edge
+export const runtime = "nodejs";
+
 export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/")) {
     const ip =

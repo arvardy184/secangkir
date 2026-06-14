@@ -269,7 +269,7 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
         ) : null}
 
         {/* Actions */}
-        <div className="flex gap-3 border-t border-kopi-200 pt-4">
+        <div className="flex flex-col gap-3 border-t border-kopi-200 pt-4 sm:flex-row">
           <button
             type="submit"
             aria-label="Simpan profil warung"

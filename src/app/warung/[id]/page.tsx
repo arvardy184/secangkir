@@ -64,7 +64,7 @@ export default async function WarungDetailPage({ params }: Props) {
       {/* Nav */}
       <nav
         aria-label="Navigasi detail warung"
-        className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5"
+        className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <Link
           href="/explore"
@@ -85,17 +85,33 @@ export default async function WarungDetailPage({ params }: Props) {
           <div className="space-y-4">
             {/* Header card */}
             <div className="surface-panel p-6 md:p-8">
+              {warung.ai_image_url ? (
+                <div className="mb-6 overflow-hidden rounded-[28px] border border-kopi-200 bg-kopi-50">
+                  <img
+                    src={warung.ai_image_url}
+                    alt={`Poster Instagram ${warung.nama}`}
+                    className="aspect-square w-full object-cover sm:aspect-[16/10]"
+                  />
+                </div>
+              ) : null}
+
               <p className="label-section mb-3">Detail Warung</p>
               <h1 className="font-display text-4xl font-semibold text-kopi-900">
                 {warung.nama}
               </h1>
 
               {/* Tagline */}
-              {warung.ai_tagline ? (
-                <p className="mt-3 text-lg font-medium italic text-kopi-700">
-                  &ldquo;{warung.ai_tagline}&rdquo;
-                </p>
-              ) : null}
+              <div className="mt-3">
+                {warung.ai_tagline ? (
+                  <p className="text-lg font-medium italic text-kopi-700">
+                    &ldquo;{warung.ai_tagline}&rdquo;
+                  </p>
+                ) : (
+                  <p className="text-sm text-kopi-500">
+                    Tagline belum tersedia untuk warung ini.
+                  </p>
+                )}
+              </div>
 
               {/* Price + vibe chips */}
               <div className="mt-4 flex flex-wrap gap-2">
@@ -110,14 +126,18 @@ export default async function WarungDetailPage({ params }: Props) {
               </div>
 
               {/* Bio */}
-              {warung.ai_bio || warung.deskripsi ? (
-                <div className="surface-inset mt-5 p-4">
-                  <p className="label-section mb-2">Tentang warung</p>
+              <div className="surface-inset mt-5 p-4">
+                <p className="label-section mb-2">Tentang warung</p>
+                {warung.ai_bio || warung.deskripsi ? (
                   <p className="text-sm leading-relaxed text-kopi-700">
                     {warung.ai_bio || warung.deskripsi}
                   </p>
-                </div>
-              ) : null}
+                ) : (
+                  <p className="text-sm text-kopi-500">
+                    Deskripsi warung belum ditambahkan.
+                  </p>
+                )}
+              </div>
 
               {/* Alamat + Google Maps */}
               {warung.alamat || googleMapsUrl ? (
@@ -143,12 +163,16 @@ export default async function WarungDetailPage({ params }: Props) {
             </div>
 
             {/* Captions — with copy buttons (client component) */}
-            {captions.length > 0 ? (
-              <div className="surface-panel p-6">
-                <p className="label-section mb-3">Caption Instagram</p>
+            <div className="surface-panel p-6">
+              <p className="label-section mb-3">Caption Instagram</p>
+              {captions.length > 0 ? (
                 <WarungDetailClient captions={captions} />
-              </div>
-            ) : null}
+              ) : (
+                <p className="text-sm text-kopi-500">
+                  Caption promosi belum tersedia saat ini.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Right — map */}

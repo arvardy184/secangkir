@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   return (
@@ -8,18 +9,7 @@ export default function Home() {
         aria-label="Main navigation"
         className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5"
       >
-        <Link
-          href="/"
-          aria-label="Go to Secangkir homepage"
-          className="flex items-center gap-2.5"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-kopi-900 text-[11px] font-bold tracking-widest text-white">
-            Sk
-          </span>
-          <span className="font-display text-xl font-semibold text-kopi-900">
-            Secangkir
-          </span>
-        </Link>
+        <Logo />
 
         <div className="flex items-center gap-2">
           <Link href="/explore" aria-label="Explore coffee shops" className="nav-link">
