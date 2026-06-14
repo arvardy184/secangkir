@@ -1,0 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-kopi-50 text-kopi-900 font-sans antialiased;
+}
+
+* {
+  @apply border-kopi-200;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  @apply outline-none ring-offset-kopi-50;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  @apply ring-2 ring-kopi-500 ring-offset-2;
+}
+
+body {
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
