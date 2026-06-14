@@ -22,11 +22,5 @@ export async function generatePosterWithReplicate(warung: Warung): Promise<strin
   const seed = Math.floor(Math.random() * 999999);
   const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
 
-  // Pollinations generates on-the-fly — verify the URL is reachable
-  const res = await fetch(url, { method: "HEAD" });
-  if (!res.ok) {
-    throw new ReplicateError(`Pollinations request failed (${res.status})`, res.status);
-  }
-
   return url;
 }
