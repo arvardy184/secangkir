@@ -14,38 +14,65 @@ export default async function AuthPage() {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (user) {
-      redirect("/dashboard");
-    }
+    if (user) redirect("/dashboard");
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-kopi-50 px-6 py-16">
-      <div className="grid w-full max-w-5xl gap-10 lg:grid-cols-[1fr_420px] lg:items-center">
-        <section className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-kopi-500">
-            Owner Portal
-          </p>
-          <h1 className="mt-4 text-4xl font-bold leading-tight text-kopi-900 md:text-5xl">
-            Login atau daftar untuk mulai mengelola profil warung kopi Anda.
-          </h1>
-          <p className="mt-5 text-base leading-8 text-kopi-700 md:text-lg">
-            Setelah masuk, Anda akan diarahkan ke dashboard. Dari sana owner
-            bisa melanjutkan onboarding warung, menambahkan lokasi, lalu
-            generate konten AI untuk kebutuhan promosi.
-          </p>
-        </section>
+    <div className="page-shell">
+      <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 py-16">
+        <div className="grid w-full gap-12 lg:grid-cols-[1fr_400px] lg:items-center">
 
-        <Suspense
-          fallback={
-            <div className="w-full max-w-md rounded-3xl border border-kopi-200 bg-white p-8 text-sm text-kopi-700 shadow-sm">
-              Memuat form auth...
+          {/* Left — context */}
+          <section>
+            <p className="label-section mb-4">Owner Portal</p>
+            <h1 className="font-display text-4xl font-semibold text-kopi-900 md:text-5xl">
+              Kelola warung kopi Anda dari satu tempat.
+            </h1>
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-kopi-700">
+              Login atau buat akun untuk mulai onboarding warung, menentukan
+              lokasi di peta, lalu generate konten promosi dengan AI.
+            </p>
+
+            <div className="mt-8 space-y-3 border-t border-kopi-200 pt-8">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-kopi-100 text-xs font-bold text-kopi-700">
+                  1
+                </span>
+                <p className="text-sm text-kopi-700">
+                  Isi profil warung — nama, vibe, harga, dan alamat.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-kopi-100 text-xs font-bold text-kopi-700">
+                  2
+                </span>
+                <p className="text-sm text-kopi-700">
+                  Tentukan lokasi warung di peta dengan klik atau drag marker.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-kopi-100 text-xs font-bold text-kopi-700">
+                  3
+                </span>
+                <p className="text-sm text-kopi-700">
+                  Generate bio, tagline, dan 5 caption Instagram siap pakai.
+                </p>
+              </div>
             </div>
-          }
-        >
-          <AuthForm />
-        </Suspense>
-      </div>
-    </main>
+          </section>
+
+          {/* Right — form */}
+          <Suspense
+            fallback={
+              <div className="surface-panel w-full p-8 text-sm text-kopi-700">
+                Memuat...
+              </div>
+            }
+          >
+            <AuthForm />
+          </Suspense>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ const config: Config = {
     extend: {
       colors: {
         kopi: {
-          50: "#fdf8f0",
+          50:  "#fdf8f0",
           100: "#f5e6d0",
           200: "#e8ccaa",
           300: "#d4a574",
@@ -16,7 +16,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans:    ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Lora", "Georgia", "ui-serif", "serif"],
       },
     },
   },

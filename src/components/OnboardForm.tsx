@@ -1,9 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 import { saveWarung, type SaveWarungResult } from "@/app/onboard/actions";
 import { PRICE_RANGES, VIBE_TAGS, type Warung } from "@/lib/types";
+
+const MapView = dynamic(() => import("@/components/MapView"), {
+  ssr: false,
+  loading: () => (
+    <div
+      aria-label="Memuat peta"
+      className="h-[280px] animate-pulse rounded-lg border border-kopi-200 bg-kopi-100 md:h-[360px]"
+    />
+  ),
+});
 
 type OnboardFormProps = {
   initialWarung: Warung | null;
@@ -19,10 +30,8 @@ type FormState = {
   lng: string;
 };
 
-const DEFAULT_LOCATION = {
-  lat: "-6.200000",
-  lng: "106.816666",
-};
+const DEFAULT_LOCATION = { lat: "-6.200000", lng: "106.816666" };
+const PICKER_MAP_CLASS = "h-[280px] md:h-[360px]";
 
 export function OnboardForm({ initialWarung }: OnboardFormProps) {
   const router = useRouter();
@@ -38,24 +47,27 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
     lng: String(initialWarung?.lng ?? DEFAULT_LOCATION.lng),
   });
 
-  const submitLabel = isPending
-    ? "Menyimpan..."
-    : initialWarung
-      ? "Update warung"
-      : "Daftarkan warung";
-
   function updateField(field: keyof FormState, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  function updateLocation(location: { lat: number; lng: number }) {
+    setForm((f) => ({
+      ...f,
+      lat: location.lat.toFixed(6),
+      lng: location.lng.toFixed(6),
+    }));
   }
 
   function toggleVibe(tag: string) {
-    setForm((current) => {
-      const exists = current.vibe_tags.includes(tag);
-      const vibe_tags = exists
-        ? current.vibe_tags.filter((item) => item !== tag)
-        : [...current.vibe_tags, tag];
-
-      return { ...current, vibe_tags };
+    setForm((f) => {
+      const exists = f.vibe_tags.includes(tag);
+      return {
+        ...f,
+        vibe_tags: exists
+          ? f.vibe_tags.filter((t) => t !== tag)
+          : [...f.vibe_tags, tag],
+      };
     });
   }
 
@@ -75,21 +87,22 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
       });
 
       setResult(response);
-
-      if (response.ok) {
-        router.refresh();
-      }
+      if (response.ok) router.refresh();
     });
   }
 
+  const selectedLocation = {
+    lat: toCoordinate(form.lat, DEFAULT_LOCATION.lat),
+    lng: toCoordinate(form.lng, DEFAULT_LOCATION.lng),
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-3xl border border-kopi-200 bg-white p-6 shadow-sm md:p-8"
-    >
-      <div className="grid gap-5">
-        <div className="space-y-2">
-          <label htmlFor="nama" className="text-sm font-medium text-kopi-700">
+    <form onSubmit={handleSubmit} className="surface-panel p-6 md:p-8">
+      <div className="space-y-6">
+
+        {/* Nama */}
+        <div className="space-y-1.5">
+          <label htmlFor="nama" className="field-label">
             Nama warung
           </label>
           <input
@@ -98,36 +111,34 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
             type="text"
             aria-label="Masukkan nama warung"
             value={form.nama}
-            onChange={(event) => updateField("nama", event.target.value)}
-            className="w-full rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900 placeholder:text-kopi-300"
+            onChange={(e) => updateField("nama", e.target.value)}
+            className="field"
             placeholder="Warung Kopi Senja"
             required
           />
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="deskripsi"
-            className="text-sm font-medium text-kopi-700"
-          >
+        {/* Deskripsi */}
+        <div className="space-y-1.5">
+          <label htmlFor="deskripsi" className="field-label">
             Deskripsi
+            <span className="ml-1 font-normal text-kopi-500">(opsional)</span>
           </label>
           <textarea
             id="deskripsi"
             name="deskripsi"
             aria-label="Masukkan deskripsi warung"
             value={form.deskripsi}
-            onChange={(event) => updateField("deskripsi", event.target.value)}
-            className="min-h-28 w-full resize-y rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900 placeholder:text-kopi-300"
-            placeholder="Ceritakan suasana, menu andalan, dan karakter warung."
+            onChange={(e) => updateField("deskripsi", e.target.value)}
+            className="field min-h-24 resize-y"
+            placeholder="Suasana, menu andalan, karakter warung..."
             maxLength={500}
           />
         </div>
 
-        <fieldset className="space-y-3">
-          <legend className="text-sm font-medium text-kopi-700">
-            Vibe warung
-          </legend>
+        {/* Vibe tags */}
+        <fieldset className="space-y-2">
+          <legend className="field-label">Vibe warung</legend>
           <div className="flex flex-wrap gap-2">
             {VIBE_TAGS.map((tag) => {
               const selected = form.vibe_tags.includes(tag);
@@ -138,11 +149,7 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
                   aria-label={`${selected ? "Hapus" : "Pilih"} vibe ${tag}`}
                   aria-pressed={selected}
                   onClick={() => toggleVibe(tag)}
-                  className={
-                    selected
-                      ? "rounded-full bg-kopi-700 px-4 py-2 text-sm font-semibold text-kopi-50 transition hover:bg-kopi-900"
-                      : "rounded-full border border-kopi-200 bg-kopi-50 px-4 py-2 text-sm font-medium text-kopi-700 transition hover:bg-kopi-100"
-                  }
+                  className={selected ? "chip-active" : "chip"}
                 >
                   {tag}
                 </button>
@@ -151,11 +158,9 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
           </div>
         </fieldset>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="price_range"
-            className="text-sm font-medium text-kopi-700"
-          >
+        {/* Price range */}
+        <div className="space-y-1.5">
+          <label htmlFor="price_range" className="field-label">
             Kisaran harga
           </label>
           <select
@@ -163,8 +168,8 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
             name="price_range"
             aria-label="Pilih kisaran harga"
             value={form.price_range}
-            onChange={(event) => updateField("price_range", event.target.value)}
-            className="w-full rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900"
+            onChange={(e) => updateField("price_range", e.target.value)}
+            className="field"
           >
             {PRICE_RANGES.map((range) => (
               <option key={range} value={range}>
@@ -174,11 +179,9 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
           </select>
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="alamat"
-            className="text-sm font-medium text-kopi-700"
-          >
+        {/* Alamat */}
+        <div className="space-y-1.5">
+          <label htmlFor="alamat" className="field-label">
             Alamat
           </label>
           <input
@@ -187,16 +190,37 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
             type="text"
             aria-label="Masukkan alamat warung"
             value={form.alamat}
-            onChange={(event) => updateField("alamat", event.target.value)}
-            className="w-full rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900 placeholder:text-kopi-300"
-            placeholder="Jl. Kopi No. 7, Jakarta"
+            onChange={(e) => updateField("alamat", e.target.value)}
+            className="field"
+            placeholder="Jl. Kopi No. 7, Jakarta Selatan"
             required
           />
         </div>
 
+        {/* Map picker */}
+        <section aria-label="Pilih lokasi warung di peta" className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="field-label">Titik lokasi</span>
+            <span className="rounded-md bg-kopi-100 px-2.5 py-1 font-mono text-xs text-kopi-700">
+              {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+            </span>
+          </div>
+          <p className="text-xs text-kopi-500">
+            Klik peta atau geser marker untuk mengisi koordinat.
+          </p>
+          <MapView
+            mode="pick"
+            value={selectedLocation}
+            onLocationChange={updateLocation}
+            className={PICKER_MAP_CLASS}
+            ariaLabel="Peta pemilihan lokasi warung"
+          />
+        </section>
+
+        {/* Lat/lng fallback inputs */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="lat" className="text-sm font-medium text-kopi-700">
+          <div className="space-y-1.5">
+            <label htmlFor="lat" className="field-label">
               Latitude
             </label>
             <input
@@ -208,14 +232,13 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
               max="90"
               aria-label="Masukkan latitude warung"
               value={form.lat}
-              onChange={(event) => updateField("lat", event.target.value)}
-              className="w-full rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900"
+              onChange={(e) => updateField("lat", e.target.value)}
+              className="field font-mono text-sm"
               required
             />
           </div>
-
-          <div className="space-y-2">
-            <label htmlFor="lng" className="text-sm font-medium text-kopi-700">
+          <div className="space-y-1.5">
+            <label htmlFor="lng" className="field-label">
               Longitude
             </label>
             <input
@@ -227,40 +250,43 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
               max="180"
               aria-label="Masukkan longitude warung"
               value={form.lng}
-              onChange={(event) => updateField("lng", event.target.value)}
-              className="w-full rounded-2xl border border-kopi-200 bg-kopi-50 px-4 py-3 text-kopi-900"
+              onChange={(e) => updateField("lng", e.target.value)}
+              className="field font-mono text-sm"
               required
             />
           </div>
         </div>
 
+        {/* Result feedback */}
         {result ? (
           <p
             role={result.ok ? "status" : "alert"}
-            className={
-              result.ok
-                ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
-                : "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            }
+            aria-live="polite"
+            className={result.ok ? "alert-success" : "alert-error"}
           >
             {result.message}
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        {/* Actions */}
+        <div className="flex gap-3 border-t border-kopi-200 pt-4">
           <button
             type="submit"
             aria-label="Simpan profil warung"
             disabled={isPending}
-            className="rounded-2xl bg-kopi-700 px-5 py-3 font-semibold text-kopi-50 transition hover:bg-kopi-900 disabled:cursor-not-allowed disabled:opacity-70"
+            className="btn-primary flex-1 py-3"
           >
-            {submitLabel}
+            {isPending
+              ? "Menyimpan..."
+              : initialWarung
+                ? "Update warung"
+                : "Daftarkan warung"}
           </button>
           <button
             type="button"
             aria-label="Kembali ke dashboard owner"
             onClick={() => router.push("/dashboard")}
-            className="rounded-2xl border border-kopi-200 bg-white px-5 py-3 font-semibold text-kopi-700 transition hover:bg-kopi-100"
+            className="btn-secondary px-5 py-3"
           >
             Dashboard
           </button>
@@ -268,4 +294,9 @@ export function OnboardForm({ initialWarung }: OnboardFormProps) {
       </div>
     </form>
   );
+}
+
+function toCoordinate(value: string, fallback: string) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : Number(fallback);
 }

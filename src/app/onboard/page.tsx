@@ -31,48 +31,68 @@ export default async function OnboardPage() {
     .maybeSingle<Warung>();
 
   return (
-    <main className="min-h-screen bg-kopi-50 px-6 py-10">
-      <section className="mx-auto w-full max-w-5xl">
-        <nav
-          aria-label="Navigasi onboarding"
-          className="mb-8 flex items-center justify-between gap-4"
-        >
-          <Link
-            href="/dashboard"
-            aria-label="Kembali ke dashboard owner"
-            className="rounded-full border border-kopi-200 bg-white px-4 py-2 text-sm font-medium text-kopi-700 transition hover:bg-kopi-100"
-          >
+    <div className="page-shell">
+      <nav
+        aria-label="Navigasi onboarding"
+        className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-kopi-900 text-[11px] font-bold tracking-widest text-white">
+            Sk
+          </span>
+          <span className="font-display text-xl font-semibold text-kopi-900">
+            Onboarding
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard" aria-label="Kembali ke dashboard owner" className="nav-link">
             Dashboard
           </Link>
-
           <form action="/auth/signout" method="post">
             <button
               type="submit"
               aria-label="Keluar dari akun owner"
-              className="rounded-full bg-kopi-700 px-4 py-2 text-sm font-semibold text-kopi-50 transition hover:bg-kopi-900"
+              className="btn-secondary"
             >
               Sign out
             </button>
           </form>
-        </nav>
+        </div>
+      </nav>
 
-        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+      <main className="mx-auto w-full max-w-6xl px-6 pb-16 pt-4">
+        <div className="grid gap-10 lg:grid-cols-[320px_1fr] lg:items-start">
           <section>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-kopi-500">
-              Onboarding Warung
-            </p>
-            <h1 className="mt-4 text-4xl font-bold leading-tight text-kopi-900">
+            <p className="label-section mb-3">Onboarding Warung</p>
+            <h1 className="font-display text-4xl font-semibold text-kopi-900">
               Lengkapi profil warung kopi Anda.
             </h1>
-            <p className="mt-5 text-base leading-8 text-kopi-700">
-              Data ini dipakai untuk dashboard owner, rekomendasi mood
-              pengunjung, dan konten AI di tahap berikutnya.
+            <p className="mt-4 text-sm leading-relaxed text-kopi-700">
+              Data ini dipakai untuk rekomendasi mood pengunjung dan konten AI.
             </p>
+
+            <div className="surface-inset mt-6 p-4">
+              <p className="label-section mb-2">Yang sebaiknya diisi</p>
+              <ol className="space-y-2 text-sm text-kopi-700">
+                <li className="flex gap-2">
+                  <span className="shrink-0 font-semibold text-kopi-500">1.</span>
+                  Nama warung yang mudah diingat.
+                </li>
+                <li className="flex gap-2">
+                  <span className="shrink-0 font-semibold text-kopi-500">2.</span>
+                  Vibe yang paling terasa saat pengunjung datang.
+                </li>
+                <li className="flex gap-2">
+                  <span className="shrink-0 font-semibold text-kopi-500">3.</span>
+                  Titik lokasi yang akurat agar mudah ditemukan.
+                </li>
+              </ol>
+            </div>
           </section>
 
           <OnboardForm initialWarung={warung ?? null} />
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -1,38 +1,158 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=Lora:wght@600&display=swap");
 @import "leaflet/dist/leaflet.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design tokens ──────────────────────────────────────────────────── */
+:root {
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lora", Georgia, ui-serif, serif;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply bg-kopi-50 text-kopi-900 font-sans antialiased;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  @apply bg-kopi-50 text-kopi-900 antialiased;
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-* {
-  @apply border-kopi-200;
+h1, h2, h3, h4 {
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-a,
-button,
-input,
-select,
-textarea {
-  @apply outline-none ring-offset-kopi-50;
+::selection {
+  @apply bg-kopi-300 text-kopi-900;
 }
 
+/* Focus — one ring, everywhere, consistent */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  @apply ring-2 ring-kopi-500 ring-offset-2;
+  @apply outline-none ring-2 ring-kopi-500 ring-offset-2 ring-offset-kopi-50;
 }
 
-body {
-  font-feature-settings: "rlig" 1, "calt" 1;
+input, select, textarea, button, a {
+  @apply outline-none;
+}
+
+/* ─── Component classes ──────────────────────────────────────────────── */
+@layer components {
+
+  /* Display serif — hero headings and section titles only */
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* ── Layout shells ── */
+
+  /* Simple warm page background — no gradients, no grids */
+  .page-shell {
+    @apply min-h-screen bg-kopi-50;
+  }
+
+  /* Floating panel — white card with single soft shadow */
+  .surface-panel {
+    @apply rounded-xl border border-kopi-200 bg-white shadow-sm;
+  }
+
+  /* Recessed inset — form fields, secondary info blocks */
+  .surface-inset {
+    @apply rounded-lg border border-kopi-200 bg-kopi-50;
+  }
+
+  /* Dark inverse panel — pull-quote, hero callout */
+  .surface-dark {
+    @apply rounded-xl bg-kopi-900 text-kopi-50;
+  }
+
+  /* ── Typography helpers ── */
+
+  /* Small label above a section — not uppercase, not tracked to death */
+  .label-section {
+    @apply text-xs font-semibold text-kopi-500;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────── */
+
+  /* Primary — dark fill, always rounded-lg (not pill) */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors;
+  }
+
+  .btn-primary {
+    @apply btn bg-kopi-900 text-white hover:bg-kopi-700 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply btn border border-kopi-200 bg-white text-kopi-700 hover:bg-kopi-50 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply btn text-kopi-700 hover:bg-kopi-100 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Large CTA variant — landing page only */
+  .btn-primary-lg {
+    @apply btn-primary px-5 py-3 text-base;
+  }
+
+  .btn-secondary-lg {
+    @apply btn-secondary px-5 py-3 text-base;
+  }
+
+  /* ── Form fields ─────────────────────────────────────────────────── */
+
+  .field {
+    @apply w-full rounded-lg border border-kopi-200 bg-white px-3.5 py-2.5 text-sm text-kopi-900 placeholder:text-kopi-300 transition-colors hover:border-kopi-300 focus:border-kopi-500 focus:ring-0;
+  }
+
+  .field-label {
+    @apply block text-sm font-medium text-kopi-700;
+  }
+
+  /* ── Chips / vibe tags ───────────────────────────────────────────── */
+
+  .chip {
+    @apply inline-flex items-center rounded-md border border-kopi-200 bg-white px-2.5 py-1 text-xs font-medium text-kopi-700 transition-colors hover:border-kopi-300;
+  }
+
+  .chip-active {
+    @apply inline-flex items-center rounded-md bg-kopi-900 px-2.5 py-1 text-xs font-semibold text-white;
+  }
+
+  /* ── Alerts ──────────────────────────────────────────────────────── */
+
+  .alert {
+    @apply rounded-lg border px-4 py-3 text-sm;
+  }
+
+  .alert-error {
+    @apply alert border-red-200 bg-red-50 text-red-700;
+  }
+
+  .alert-success {
+    @apply alert border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+
+  .alert-info {
+    @apply alert border-amber-200 bg-amber-50 text-amber-700;
+  }
+
+  /* ── Nav ─────────────────────────────────────────────────────────── */
+
+  .nav-link {
+    @apply rounded-lg px-3 py-2 text-sm font-medium text-kopi-700 transition-colors hover:bg-kopi-100 hover:text-kopi-900;
+  }
 }
