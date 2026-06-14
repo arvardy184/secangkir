@@ -295,7 +295,11 @@ function parseJsonResponse<T>(text: string): T {
       throw new GeminiApiError("Gemini returned non-JSON content", 502);
     }
 
-    return JSON.parse(match[0]) as T;
+    try {
+      return JSON.parse(match[0]) as T;
+    } catch {
+      throw new GeminiApiError("Gemini returned malformed JSON", 502);
+    }
   }
 }
 

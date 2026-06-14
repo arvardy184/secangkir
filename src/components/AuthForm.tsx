@@ -54,7 +54,9 @@ export function AuthForm() {
 
       if (!result.data.session) {
         setMessage(
-          "Akun berhasil dibuat. Jika tidak langsung masuk, pastikan Confirm email dinonaktifkan di Supabase.",
+          isLogin
+            ? "Login berhasil namun sesi tidak terbuat. Pastikan email sudah dikonfirmasi."
+            : "Akun berhasil dibuat. Jika tidak langsung masuk, pastikan Confirm email dinonaktifkan di Supabase.",
         );
         return;
       }

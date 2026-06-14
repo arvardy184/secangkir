@@ -117,7 +117,7 @@ export default function ExplorePage() {
             />
 
             {error ? (
-              <p role="alert" aria-live="polite" className="alert-info">
+              <p role="alert" aria-live="assertive" className="alert-info">
                 {error}
               </p>
             ) : null}

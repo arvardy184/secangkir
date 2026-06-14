@@ -53,8 +53,12 @@ export function AiContentPanel({ warung }: AiContentPanelProps) {
   }
 
   async function copyText(value: string) {
-    await navigator.clipboard.writeText(value);
-    setMessage("Disalin ke clipboard.");
+    try {
+      await navigator.clipboard.writeText(value);
+      setMessage("Disalin ke clipboard.");
+    } catch {
+      setError("Gagal menyalin. Coba salin manual.");
+    }
   }
 
   function handleGenerateImage() {

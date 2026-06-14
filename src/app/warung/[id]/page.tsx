@@ -39,10 +39,11 @@ export default async function WarungDetailPage({ params }: Props) {
   if (!hasSupabaseEnv) notFound();
 
   const supabase = createServerClient();
-  const [{ data: warung, error }, { data: { user } }] = await Promise.all([
+  const [{ data: warung, error }, authResult] = await Promise.all([
     supabase.from("warung").select("*").eq("id", params.id).maybeSingle<Warung>(),
     supabase.auth.getUser(),
   ]);
+  const user = authResult.data?.user ?? null;
 
   if (error || !warung) notFound();
 

@@ -60,7 +60,7 @@ export async function saveWarung(
   }
 
   const result = existing
-    ? await supabase.from("warung").update(payload).eq("id", existing.id)
+    ? await supabase.from("warung").update(payload).eq("id", existing.id).eq("owner_id", user.id)
     : await supabase.from("warung").insert(payload);
 
   if (result.error) {

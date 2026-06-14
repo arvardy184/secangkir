@@ -11,7 +11,7 @@ export const MatchSchema = z.object({
 export const OnboardSchema = z.object({
   nama: z.string().min(1).max(100),
   deskripsi: z.string().max(500).optional(),
-  vibe_tags: z.array(z.string()).min(1).max(8),
+  vibe_tags: z.array(z.string().min(1).max(50)).min(1).max(8),
   price_range: z.string(),
   alamat: z.string().min(1).max(200),
   lat: z.number().min(-90).max(90),
