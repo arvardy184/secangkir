@@ -39,14 +39,14 @@ export default async function WarungDetailPage({ params }: Props) {
   if (!hasSupabaseEnv) notFound();
 
   const supabase = createServerClient();
-  const { data: warung, error } = await supabase
-    .from("warung")
-    .select("*")
-    .eq("id", params.id)
-    .maybeSingle<Warung>();
+  const [{ data: warung, error }, { data: { user } }] = await Promise.all([
+    supabase.from("warung").select("*").eq("id", params.id).maybeSingle<Warung>(),
+    supabase.auth.getUser(),
+  ]);
 
   if (error || !warung) notFound();
 
+  const isOwner = Boolean(user && user.id === warung.owner_id);
   const vibeTags = warung.vibe_tags ?? [];
   const captions = warung.ai_captions ?? [];
   const hasLocation = warung.lat !== null && warung.lng !== null;
@@ -162,17 +162,19 @@ export default async function WarungDetailPage({ params }: Props) {
               ) : null}
             </div>
 
-            {/* Captions — with copy buttons (client component) */}
-            <div className="surface-panel p-6">
-              <p className="label-section mb-3">Caption Instagram</p>
-              {captions.length > 0 ? (
-                <WarungDetailClient captions={captions} />
-              ) : (
-                <p className="text-sm text-kopi-500">
-                  Caption promosi belum tersedia saat ini.
-                </p>
-              )}
-            </div>
+            {/* Captions — hanya untuk owner */}
+            {isOwner ? (
+              <div className="surface-panel p-6">
+                <p className="label-section mb-3">Caption Instagram</p>
+                {captions.length > 0 ? (
+                  <WarungDetailClient captions={captions} />
+                ) : (
+                  <p className="text-sm text-kopi-500">
+                    Caption promosi belum tersedia. Generate dari dashboard.
+                  </p>
+                )}
+              </div>
+            ) : null}
           </div>
 
           {/* Right — map */}
